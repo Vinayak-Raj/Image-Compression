@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "321648235621",
+    "firebase_url": "https://image-compression-android.firebaseio.com",
+    "project_id": "image-compression-android",
+    "storage_bucket": "image-compression-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321648235621:android:ec4c90cc60c8673beae28c",
+        "android_client_info": {
+          "package_name": "com.example.imagecompress"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "321648235621-9nputp0ni61jpatinpnnp9p3afnqd2re.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuZPBS73fE04DzE7_tNhG6RsSmcYl0qFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "321648235621-9nputp0ni61jpatinpnnp9p3afnqd2re.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
