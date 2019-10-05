@@ -5,6 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:share_extend/share_extend.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 
 void main() => runApp(MyApp());
 
@@ -25,10 +26,13 @@ class MyHomePage1 extends StatefulWidget {
 }
 
 File image, image2;
+double sliderValue = 50;
+GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
 class _MyHomePage1State extends State<MyHomePage1> {
   Future<void> pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source,imageQuality: 100);
+    File selected =
+        await ImagePicker.pickImage(source: source, imageQuality: 100);
     setState(() {
       image = selected;
     });
@@ -41,9 +45,17 @@ class _MyHomePage1State extends State<MyHomePage1> {
     });
   }
 
+  void changed(e) {
+    setState(() {
+      sliderValue = e;
+      // msg = "Quality is ${e.toString()}";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
         title: Text(
@@ -60,7 +72,25 @@ class _MyHomePage1State extends State<MyHomePage1> {
                   style: TextStyle(color: Colors.green[900]),
                 ),
               )
-            : UploadInterface(),
+            : Column(
+                children: <Widget>[
+                  UploadInterface(),
+                  //Text("The Slider denotes the quality of the image"),
+                  FlutterSlider(
+                    tooltip: FlutterSliderTooltip(
+                        rightPrefix: Icon(
+                      Icons.image,
+                      color: Colors.blue[900],
+                    )),
+                    values: [50],
+                    max: 95,
+                    min: 5,
+                    onDragging: (handlerIndex, lowerValue, upperValue) {
+                      changed(lowerValue);
+                    },
+                  ),
+                ],
+              ),
       ),
       floatingActionButton: new Stack(
         children: <Widget>[
@@ -115,11 +145,12 @@ class _UploadInterfaceState extends State<UploadInterface> {
       storageBucket: 'gs://image-compression-android.appspot.com/');
   StorageUploadTask uploadTask;
   String filepath = 'images/${DateTime.now()}.png';
-var length = image.lengthSync().toString();
+  var length = image.lengthSync().toString();
+
   Future<void> startUpload() async {
     File compressed = await FlutterImageCompress.compressAndGetFile(
         image.path, image.path,
-        quality: 5);
+        quality: sliderValue.toInt());
     setState(() {
       image2 = compressed;
       uploadTask = firebaseStorage.ref().child(filepath).putFile(image2);
@@ -127,19 +158,20 @@ var length = image.lengthSync().toString();
   }
 
   share() {
-   String path = image2.path;
-   ShareExtend.share(path, "file");
- }
+    String path = image2.path;
+    ShareExtend.share(path, "file");
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
         Container(
-          height: 400,
+          height: 390,
           width: 160,
-          margin: EdgeInsets.only(top: 10, left: 10),
-          decoration: BoxDecoration(border: Border.all(width: 3,color: Colors.blue[900])),
+          margin: EdgeInsets.only(top: 1, left: 10),
+          decoration: BoxDecoration(
+              border: Border.all(width: 3, color: Colors.lightBlueAccent)),
           child: Column(
             children: <Widget>[
               Image.file(
@@ -157,17 +189,21 @@ var length = image.lengthSync().toString();
         ),
         image2 == null
             ? Container(
-                height: 400,
+                height: 390,
                 width: 160,
-                margin: EdgeInsets.only(top: 10, left: 10),
-                decoration: BoxDecoration(border: Border.all(width: 3,color: Colors.blue[900])),
+                margin: EdgeInsets.only(top: 1, left: 10),
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(width: 3, color: Colors.lightBlueAccent)),
                 child: Center(child: Text("Compressed Image")),
               )
             : Container(
-                height: 400,
+                height: 390,
                 width: 160,
-                margin: EdgeInsets.only(top: 10, left: 10),
-                decoration: BoxDecoration(border: Border.all(width: 3,color: Colors.blue[900])),
+                margin: EdgeInsets.only(top: 1, left: 10),
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(width: 3, color: Colors.lightBlueAccent)),
                 child: Column(
                   children: <Widget>[
                     Image.file(
