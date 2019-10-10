@@ -1,11 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:share_extend/share_extend.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
+import './ui/compression.dart' as firstpage;
+import './ui/info.dart' as secondpage;
 
 void main() => runApp(MyApp());
 
@@ -27,7 +25,7 @@ class MyHomePage1 extends StatefulWidget {
 
 File image, image2;
 double sliderValue = 50;
-GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+// GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
 class _MyHomePage1State extends State<MyHomePage1> {
   Future<void> pickImage(ImageSource source) async {
@@ -48,14 +46,23 @@ class _MyHomePage1State extends State<MyHomePage1> {
   void changed(e) {
     setState(() {
       sliderValue = e;
-      // msg = "Quality is ${e.toString()}";
     });
+  }
+
+  void displaySecondPage() {
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return secondpage.InfoInterface();
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      // key: _scaffoldKey,
       backgroundColor: Colors.lightBlueAccent,
       appBar: AppBar(
         title: Text(
@@ -63,6 +70,15 @@ class _MyHomePage1State extends State<MyHomePage1> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.lightBlue[900],
+        actions: <Widget>[
+          IconButton(
+            icon: new Icon(
+              Icons.info_outline,
+              color: Colors.white,
+            ),
+            onPressed: image == null ? displaySecondPage : null,
+          ),
+        ],
       ),
       body: Container(
         child: image == null
@@ -74,7 +90,7 @@ class _MyHomePage1State extends State<MyHomePage1> {
               )
             : Column(
                 children: <Widget>[
-                  UploadInterface(),
+                  firstpage.CompressionInterface(),
                   //Text("The Slider denotes the quality of the image"),
                   FlutterSlider(
                     tooltip: FlutterSliderTooltip(
@@ -97,6 +113,7 @@ class _MyHomePage1State extends State<MyHomePage1> {
           Align(
             alignment: Alignment.bottomRight,
             child: FloatingActionButton(
+              heroTag: "1",
               backgroundColor: Colors.green,
               foregroundColor: Colors.black,
               onPressed: () {
@@ -110,6 +127,7 @@ class _MyHomePage1State extends State<MyHomePage1> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: FloatingActionButton(
+                  heroTag: "2",
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.black,
                   onPressed: clear,
@@ -121,6 +139,7 @@ class _MyHomePage1State extends State<MyHomePage1> {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: FloatingActionButton(
+                heroTag: "3",
                 foregroundColor: Colors.black,
                 onPressed: () {
                   pickImage(ImageSource.gallery);
@@ -131,96 +150,6 @@ class _MyHomePage1State extends State<MyHomePage1> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class UploadInterface extends StatefulWidget {
-  @override
-  _UploadInterfaceState createState() => _UploadInterfaceState();
-}
-
-class _UploadInterfaceState extends State<UploadInterface> {
-  final FirebaseStorage firebaseStorage = FirebaseStorage(
-      storageBucket: 'gs://image-compression-android.appspot.com/');
-  StorageUploadTask uploadTask;
-  String filepath = 'images/${DateTime.now()}.png';
-  var length = image.lengthSync().toString();
-
-  Future<void> startUpload() async {
-    File compressed = await FlutterImageCompress.compressAndGetFile(
-        image.path, image.path,
-        quality: sliderValue.toInt());
-    setState(() {
-      image2 = compressed;
-      uploadTask = firebaseStorage.ref().child(filepath).putFile(image2);
-    });
-  }
-
-  share() {
-    String path = image2.path;
-    ShareExtend.share(path, "file");
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Container(
-          height: 390,
-          width: 160,
-          margin: EdgeInsets.only(top: 1, left: 10),
-          decoration: BoxDecoration(
-              border: Border.all(width: 3, color: Colors.lightBlueAccent)),
-          child: Column(
-            children: <Widget>[
-              Image.file(
-                image,
-                height: 300,
-                width: 150,
-              ),
-              Text(length + " bytes"),
-              FloatingActionButton(
-                  backgroundColor: Colors.deepPurple,
-                  child: Icon(Icons.sync),
-                  onPressed: startUpload),
-            ],
-          ),
-        ),
-        image2 == null
-            ? Container(
-                height: 390,
-                width: 160,
-                margin: EdgeInsets.only(top: 1, left: 10),
-                decoration: BoxDecoration(
-                    border:
-                        Border.all(width: 3, color: Colors.lightBlueAccent)),
-                child: Center(child: Text("Compressed Image")),
-              )
-            : Container(
-                height: 390,
-                width: 160,
-                margin: EdgeInsets.only(top: 1, left: 10),
-                decoration: BoxDecoration(
-                    border:
-                        Border.all(width: 3, color: Colors.lightBlueAccent)),
-                child: Column(
-                  children: <Widget>[
-                    Image.file(
-                      image2,
-                      height: 300,
-                      width: 150,
-                    ),
-                    Text(image2.lengthSync().toString() + " bytes"),
-                    FloatingActionButton(
-                      backgroundColor: Colors.orangeAccent,
-                      child: Icon(Icons.share),
-                      onPressed: share,
-                    ),
-                  ],
-                ),
-              ),
-      ],
     );
   }
 }
